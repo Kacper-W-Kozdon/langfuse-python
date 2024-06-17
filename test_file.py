@@ -3,6 +3,8 @@
 from langfuse.unify import unify
 import os
 from dotenv import load_dotenv
+from langfuse.decorators import langfuse_context
+from langfuse.decorators import observe
 
 load_dotenv()
 
@@ -17,7 +19,7 @@ print(unify.langfuse_host)
 client = unify.Unify(endpoint="gpt-3.5-turbo@openai", api_key=unify_api_key)
 
 
-# @observe() # decorator to automatically create trace and nest generations
+@observe()  # decorator to automatically create trace and nest generations
 def main(country: str, user_id: str, **kwargs) -> str:
     # nested generation 1: use openai to get capital of country
     global client
@@ -45,17 +47,17 @@ def main(country: str, user_id: str, **kwargs) -> str:
     )
 
     # rename trace and set attributes (e.g., medatata) as needed
-    # langfuse_context.update_current_trace(
-    #     name="City poem generator",
-    #     session_id="1234",
-    #     user_id=user_id,
-    #     tags=["tag1", "tag2"],
-    #     public=True,
-    #     metadata = {
-    #     "env": "development",
-    #     },
-    #     release = "v0.0.21"
-    # )
+    langfuse_context.update_current_trace(
+        name="City poem generator",
+        session_id="1234",
+        user_id=user_id,
+        tags=["tag1", "tag2"],
+        public=True,
+        metadata={
+            "env": "development",
+        },
+        release="v0.0.21",
+    )
 
     return poem
 
