@@ -1,3 +1,3 @@
-from .unify_integration import unify
+from .unify_integration import unify, UnifyLangfuse
 
-__all__ = ["unify"]
+__all__ = ["unify", "UnifyLangfuse"]
