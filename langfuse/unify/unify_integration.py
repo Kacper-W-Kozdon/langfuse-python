@@ -209,12 +209,12 @@ class UnifyLangfuse(OpenAILangfuse):
         return self._langfuse
 
     def reassign_tracing(self):
-        setattr(unify, "langfuse_public_key", super().langfuse_public_key)
-        setattr(unify, "langfuse_secret_key", super().langfuse_secret_key)
-        setattr(unify, "langfuse_host", super().langfuse_host)
-        setattr(unify, "langfuse_debug", super().langfuse_debug)
-        setattr(unify, "langfuse_enabled", super().langfuse_enabled)
-        setattr(unify, "flush_langfuse", super().flush)
+        setattr(unify, "langfuse_public_key", self.langfuse_public_key)
+        setattr(unify, "langfuse_secret_key", self.langfuse_secret_key)
+        setattr(unify, "langfuse_host", self.langfuse_host)
+        setattr(unify, "langfuse_debug", self.langfuse_debug)
+        setattr(unify, "langfuse_enabled", self.langfuse_enabled)
+        setattr(unify, "flush_langfuse", self.flush)
 
 
 modifier = UnifyLangfuse()
