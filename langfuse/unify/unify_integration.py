@@ -18,7 +18,6 @@ See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
 from typing import Optional, List, Dict, Generator, AsyncGenerator
-from langfuse import Langfuse
 from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from unify.exceptions import status_error_map
 from langfuse.openai import openai, OpenAILangfuse
@@ -180,9 +179,7 @@ class ChatBot(ChatBot):
             )
 
 
-class UnifyLangfuse(OpenAILangfuse):
-    _langfuse: Optional[Langfuse] = OpenAILangfuse._langfuse
-
+class OpenAILangfuse(OpenAILangfuse):
     def initialize(self):
         self._langfuse = LangfuseSingleton().get(
             public_key=unify.langfuse_public_key,
@@ -194,17 +191,17 @@ class UnifyLangfuse(OpenAILangfuse):
         )
         return self._langfuse
 
-    def register_tracing(self):
-        setattr(unify, "langfuse_public_key", super().langfuse_public_key)
-        setattr(unify, "langfuse_secret_key", super().langfuse_secret_key)
-        setattr(unify, "langfuse_host", super().langfuse_host)
-        setattr(unify, "langfuse_debug", super().langfuse_debug)
-        setattr(unify, "langfuse_enabled", super())
-        setattr(unify, "flush_langfuse", super().flush)
+    def reassign_tracing(self):
+        setattr(unify, "langfuse_public_key", self.langfuse_public_key)
+        setattr(unify, "langfuse_secret_key", self.langfuse_secret_key)
+        setattr(unify, "langfuse_host", self.langfuse_host)
+        setattr(unify, "langfuse_debug", self.langfuse_debug)
+        setattr(unify, "langfuse_enabled", self.langfuse_enabled)
+        setattr(unify, "flush_langfuse", self.flush)
 
 
-modifier = UnifyLangfuse()
-modifier.register_tracing()
+modifier = OpenAILangfuse()
+modifier.reassign_tracing()
 
 unify.Unify = Unify
 unify.AsyncUnify = AsyncUnify
