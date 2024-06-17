@@ -180,22 +180,6 @@ class ChatBot(ChatBot):
             )
 
 
-def enhance_method(klass, method_name, replacement):
-    "replace a method with an enhanced version"
-    method = getattr(klass, method_name)
-
-    def enhanced(*args, **kwargs):
-        return replacement(method, *args, **kwargs)
-
-    setattr(klass, "method_name", enhanced)
-
-
-def method_logger(old_method, self, *args, **kwargs):
-    "example of enhancement: log all calls to a method"
-    return_value = old_method(self, *args, **kwargs)  # call the original method
-    return return_value
-
-
 class UnifyLangfuse(OpenAILangfuse):
     def initialize(self):
         super()._langfuse = LangfuseSingleton().get(
