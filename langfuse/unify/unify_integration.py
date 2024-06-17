@@ -33,6 +33,32 @@ except ImportError:
 from unify import Unify, AsyncUnify, ChatBot
 
 
+class UnifyLangfuse(OpenAILangfuse):
+    def initialize(self):
+        super()._langfuse = LangfuseSingleton().get(
+            public_key=unify.langfuse_public_key,
+            secret_key=unify.langfuse_secret_key,
+            host=unify.langfuse_host,
+            debug=unify.langfuse_debug,
+            enabled=unify.langfuse_enabled,
+            sdk_integration="unify",
+        )
+        return self._langfuse
+
+    def register_tracing(self):
+        super().register_tracing()
+        setattr(unify, "langfuse_public_key", openai.langfuse_public_key)
+        setattr(unify, "langfuse_secret_key", openai.langfuse_secret_key)
+        setattr(unify, "langfuse_host", openai.langfuse_host)
+        setattr(unify, "langfuse_debug", openai.langfuse_debug)
+        setattr(unify, "langfuse_enabled", openai.langfuse_enabled)
+        setattr(unify, "flush_langfuse", openai.flush)
+
+
+modifier = UnifyLangfuse()
+modifier.register_tracing()
+
+
 class Unify(Unify):
     def __init__(
         self,
@@ -178,32 +204,6 @@ class ChatBot(ChatBot):
                 model=model,
                 provider=provider,
             )
-
-
-class UnifyLangfuse(OpenAILangfuse):
-    def initialize(self):
-        super()._langfuse = LangfuseSingleton().get(
-            public_key=unify.langfuse_public_key,
-            secret_key=unify.langfuse_secret_key,
-            host=unify.langfuse_host,
-            debug=unify.langfuse_debug,
-            enabled=unify.langfuse_enabled,
-            sdk_integration="unify",
-        )
-        return self._langfuse
-
-    def reassign_tracing(self):
-        setattr(unify, "langfuse_public_key", self.langfuse_public_key)
-        setattr(unify, "langfuse_secret_key", self.langfuse_secret_key)
-        setattr(unify, "langfuse_host", self.langfuse_host)
-        setattr(unify, "langfuse_debug", self.langfuse_debug)
-        setattr(unify, "langfuse_enabled", self.langfuse_enabled)
-        setattr(unify, "flush_langfuse", self.flush)
-
-
-modifier = UnifyLangfuse()
-modifier.register_tracing()
-modifier.reassign_tracing()
 
 
 unify.Unify = Unify
