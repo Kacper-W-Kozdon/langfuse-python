@@ -31,7 +31,8 @@ def main(country: str, user_id: str, **kwargs) -> str:
             {"role": "user", "content": country},
         ]
     )
-    capital_input = capital.choices[0].text["content"]
+    print(capital)
+    capital_input = capital
     # nested generation 2: use openai to write poem on capital
     poem = client.generate(
         messages=[
@@ -56,7 +57,7 @@ def main(country: str, user_id: str, **kwargs) -> str:
     #     release = "v0.0.21"
     # )
 
-    return poem.choices[0].text["content"]
+    return poem
 
 
 # create random trace_id, could also use existing id from your application, e.g. conversation id
