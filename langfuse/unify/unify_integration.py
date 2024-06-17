@@ -198,7 +198,7 @@ def method_logger(old_method, self, *args, **kwargs):
 
 class UnifyLangfuse(OpenAILangfuse):
     def initialize(self):
-        self._langfuse = LangfuseSingleton().get(
+        super()._langfuse = LangfuseSingleton().get(
             public_key=unify.langfuse_public_key,
             secret_key=unify.langfuse_secret_key,
             host=unify.langfuse_host,
@@ -208,7 +208,7 @@ class UnifyLangfuse(OpenAILangfuse):
         )
         return self._langfuse
 
-    def reassign_tracing(super):
+    def reassign_tracing(self):
         setattr(unify, "langfuse_public_key", super().langfuse_public_key)
         setattr(unify, "langfuse_secret_key", super().langfuse_secret_key)
         setattr(unify, "langfuse_host", super().langfuse_host)
@@ -217,9 +217,8 @@ class UnifyLangfuse(OpenAILangfuse):
         setattr(unify, "flush_langfuse", super().flush)
 
 
-OpenAILangfuse.initialize = UnifyLangfuse.initialize
-
 modifier = UnifyLangfuse()
+modifier.register_tracing()
 modifier.reassign_tracing()
 
 
