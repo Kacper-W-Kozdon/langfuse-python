@@ -208,20 +208,20 @@ class UnifyLangfuse(OpenAILangfuse):
         )
         return self._langfuse
 
+    def reassign_tracing(super):
+        setattr(unify, "langfuse_public_key", super().langfuse_public_key)
+        setattr(unify, "langfuse_secret_key", super().langfuse_secret_key)
+        setattr(unify, "langfuse_host", super().langfuse_host)
+        setattr(unify, "langfuse_debug", super().langfuse_debug)
+        setattr(unify, "langfuse_enabled", super().langfuse_enabled)
+        setattr(unify, "flush_langfuse", super().flush)
 
-def reassign_tracing(obj: OpenAILangfuse):
-    setattr(unify, "langfuse_public_key", OpenAILangfuse.langfuse_public_key)
-    setattr(unify, "langfuse_secret_key", OpenAILangfuse.langfuse_secret_key)
-    setattr(unify, "langfuse_host", OpenAILangfuse.langfuse_host)
-    setattr(unify, "langfuse_debug", OpenAILangfuse.langfuse_debug)
-    setattr(unify, "langfuse_enabled", OpenAILangfuse.langfuse_enabled)
-    setattr(unify, "flush_langfuse", OpenAILangfuse.flush)
 
-
-OpenAILangfuse.register_tracing = reassign_tracing
+OpenAILangfuse.initialize = UnifyLangfuse.initialize
 
 modifier = UnifyLangfuse()
 modifier.reassign_tracing()
+
 
 unify.Unify = Unify
 unify.AsyncUnify = AsyncUnify
