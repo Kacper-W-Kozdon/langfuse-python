@@ -195,12 +195,12 @@ class UnifyLangfuse(OpenAILangfuse):
         return self._langfuse
 
     def register_tracing(self):
-        setattr(unify, "langfuse_public_key", openai.langfuse_public_key)
-        setattr(unify, "langfuse_secret_key", openai.langfuse_secret_key)
-        setattr(unify, "langfuse_host", openai.langfuse_host)
-        setattr(unify, "langfuse_debug", openai.langfuse_debug)
-        setattr(unify, "langfuse_enabled", True)
-        setattr(unify, "flush_langfuse", openai.flush)
+        setattr(unify, "langfuse_public_key", super().langfuse_public_key)
+        setattr(unify, "langfuse_secret_key", super().langfuse_secret_key)
+        setattr(unify, "langfuse_host", super().langfuse_host)
+        setattr(unify, "langfuse_debug", super().langfuse_debug)
+        setattr(unify, "langfuse_enabled", super())
+        setattr(unify, "flush_langfuse", super().flush)
 
 
 modifier = UnifyLangfuse()
