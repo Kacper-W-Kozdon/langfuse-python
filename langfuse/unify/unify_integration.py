@@ -18,8 +18,10 @@ See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
 from typing import Optional, List, Dict, Generator, AsyncGenerator
+from langfuse import Langfuse
+from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from unify.exceptions import status_error_map
-from langfuse.openai import openai
+from langfuse.openai import openai, OpenAILangfuse
 
 try:
     import unify
@@ -177,6 +179,32 @@ class ChatBot(ChatBot):
                 provider=provider,
             )
 
+
+class UnifyLangfuse(OpenAILangfuse):
+    _langfuse: Optional[Langfuse] = OpenAILangfuse._langfuse
+
+    def initialize(self):
+        self._langfuse = LangfuseSingleton().get(
+            public_key=unify.langfuse_public_key,
+            secret_key=unify.langfuse_secret_key,
+            host=unify.langfuse_host,
+            debug=unify.langfuse_debug,
+            enabled=unify.langfuse_enabled,
+            sdk_integration="unify",
+        )
+        return self._langfuse
+
+    def register_tracing(self):
+        setattr(unify, "langfuse_public_key", openai.langfuse_public_key)
+        setattr(unify, "langfuse_secret_key", openai.langfuse_secret_key)
+        setattr(unify, "langfuse_host", openai.langfuse_host)
+        setattr(unify, "langfuse_debug", openai.langfuse_debug)
+        setattr(unify, "langfuse_enabled", True)
+        setattr(unify, "flush_langfuse", openai.flush)
+
+
+modifier = UnifyLangfuse()
+modifier.register_tracing()
 
 unify.Unify = Unify
 unify.AsyncUnify = AsyncUnify
