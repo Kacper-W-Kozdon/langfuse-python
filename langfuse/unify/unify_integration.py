@@ -52,7 +52,7 @@ class UnifyLangfuse(OpenAILangfuse):
         setattr(unify, "langfuse_host", openai.langfuse_host)
         setattr(unify, "langfuse_debug", openai.langfuse_debug)
         setattr(unify, "langfuse_enabled", openai.langfuse_enabled)
-        setattr(unify, "flush_langfuse", openai.flush)
+        setattr(unify, "flush_langfuse", openai.flush_langfuse)
 
 
 modifier = UnifyLangfuse()
