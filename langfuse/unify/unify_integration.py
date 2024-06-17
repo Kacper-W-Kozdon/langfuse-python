@@ -21,7 +21,7 @@ from __future__ import nested_scopes
 from typing import Optional, List, Dict, Generator, AsyncGenerator
 from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from unify.exceptions import status_error_map
-from langfuse.openai import openai, OpenAILangfuse
+from .openai import openai, OpenAILangfuse
 
 try:
     import unify
@@ -34,7 +34,7 @@ from unify import Unify, AsyncUnify, ChatBot
 
 
 class UnifyLangfuse(OpenAILangfuse):
-    _langfuse: Optional[LangfuseSingleton] = None
+    _langfuse: Optional[LangfuseSingleton] = OpenAILangfuse._langfuse
 
     def initialize(self):
         self._langfuse = LangfuseSingleton().get(
