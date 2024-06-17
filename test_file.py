@@ -1,6 +1,6 @@
 # from langfuse.unify import unify
 # from langfuse.unify import openai
-from langfuse.unify import unify, UnifyLangfuse
+from langfuse.unify import unify
 import os
 from dotenv import load_dotenv
 
@@ -14,7 +14,6 @@ unify.langfuse_host = os.getenv("LANGFUSE_HOST")
 unify_api_key = os.getenv("UNIFY_API_KEY")
 print(unify.langfuse_host)
 
-langfuse = UnifyLangfuse().initialize()
 client = unify.Unify(endpoint="gpt-3.5-turbo@openai", api_key=unify_api_key)
 
 
