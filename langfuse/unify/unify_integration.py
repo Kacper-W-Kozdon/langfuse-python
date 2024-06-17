@@ -34,8 +34,6 @@ from unify import Unify, AsyncUnify, ChatBot
 
 
 class UnifyLangfuse(OpenAILangfuse):
-    _langfuse: Optional[LangfuseSingleton] = OpenAILangfuse._langfuse
-
     def initialize(self):
         self._langfuse = LangfuseSingleton().get(
             public_key=unify.langfuse_public_key,
