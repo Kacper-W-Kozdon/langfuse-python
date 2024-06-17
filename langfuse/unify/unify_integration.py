@@ -17,6 +17,7 @@ The integration is fully interoperable with the `observe()` decorator and the lo
 See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
+from __future__ import nested_scopes
 from typing import Optional, List, Dict, Generator, AsyncGenerator
 from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from unify.exceptions import status_error_map
@@ -179,7 +180,23 @@ class ChatBot(ChatBot):
             )
 
 
-class OpenAILangfuse(OpenAILangfuse):
+def enhance_method(klass, method_name, replacement):
+    "replace a method with an enhanced version"
+    method = getattr(klass, method_name)
+
+    def enhanced(*args, **kwargs):
+        return replacement(method, *args, **kwargs)
+
+    setattr(klass, "method_name", enhanced)
+
+
+def method_logger(old_method, self, *args, **kwargs):
+    "example of enhancement: log all calls to a method"
+    return_value = old_method(self, *args, **kwargs)  # call the original method
+    return return_value
+
+
+class UnifyLangfuse(OpenAILangfuse):
     def initialize(self):
         self._langfuse = LangfuseSingleton().get(
             public_key=unify.langfuse_public_key,
@@ -191,16 +208,19 @@ class OpenAILangfuse(OpenAILangfuse):
         )
         return self._langfuse
 
-    def reassign_tracing(self):
-        setattr(unify, "langfuse_public_key", self.langfuse_public_key)
-        setattr(unify, "langfuse_secret_key", self.langfuse_secret_key)
-        setattr(unify, "langfuse_host", self.langfuse_host)
-        setattr(unify, "langfuse_debug", self.langfuse_debug)
-        setattr(unify, "langfuse_enabled", self.langfuse_enabled)
-        setattr(unify, "flush_langfuse", self.flush)
+
+def reassign_tracing(obj: OpenAILangfuse):
+    setattr(unify, "langfuse_public_key", OpenAILangfuse.langfuse_public_key)
+    setattr(unify, "langfuse_secret_key", OpenAILangfuse.langfuse_secret_key)
+    setattr(unify, "langfuse_host", OpenAILangfuse.langfuse_host)
+    setattr(unify, "langfuse_debug", OpenAILangfuse.langfuse_debug)
+    setattr(unify, "langfuse_enabled", OpenAILangfuse.langfuse_enabled)
+    setattr(unify, "flush_langfuse", OpenAILangfuse.flush)
 
 
-modifier = OpenAILangfuse()
+OpenAILangfuse.register_tracing = reassign_tracing
+
+modifier = UnifyLangfuse()
 modifier.reassign_tracing()
 
 unify.Unify = Unify
