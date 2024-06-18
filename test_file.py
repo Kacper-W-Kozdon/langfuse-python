@@ -23,7 +23,6 @@ client = unify.Unify(endpoint="gpt-3.5-turbo@openai", api_key=unify_api_key)
 def main(country: str, user_id: str, **kwargs) -> str:
     # nested generation 1: use openai to get capital of country
     global client
-    client.set_provider("openai")
     capital = client.generate(
         messages=[
             {
