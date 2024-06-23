@@ -57,10 +57,10 @@ def _unify_wrapper(func):
             print(str(replacer))
             mod = inspect.getmodule(replacer)
             print(mod)
-            replacement = getattr(mod, f"{replacer.__name__}", None)
-            print(replacement)
+            initialize = getattr(mod, f"{replacer.__name__}", None)
+            print(initialize)
 
-            return func(open_ai_resource, replacement, wrapped, args, kwargs)
+            return func(open_ai_resource, initialize, wrapped, args, kwargs)
 
         return wrapper
 
