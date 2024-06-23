@@ -51,7 +51,7 @@ _filter_image_data = _filter_image_data
 def _unify_wrapper(func):
     def swapper(replacer):
         @functools.wraps(replacer)
-        def openai_init(
+        def wrapper(
             open_ai_resource: OpenAiDefinition, initialize, wrapped, args, kwargs
         ):
             print(str(replacer))
@@ -62,7 +62,7 @@ def _unify_wrapper(func):
 
             return func(open_ai_resource, replacement, wrapped, args, kwargs)
 
-        return openai_init
+        return wrapper
 
     return swapper
 
