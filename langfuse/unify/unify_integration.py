@@ -49,8 +49,9 @@ _filter_image_data = _filter_image_data
 def _unify_wrapper(func):
     def replace_init(replacer):
         def _with_langfuse(open_ai_definition, initialize):
+            initialize = replacer
+
             def wrapper(wrapped, instance, args, kwargs):
-                initialize = replacer
                 return func(open_ai_definition, initialize, wrapped, args, kwargs)
 
             return wrapper
