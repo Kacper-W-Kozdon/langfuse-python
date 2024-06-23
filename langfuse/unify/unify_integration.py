@@ -58,11 +58,9 @@ def _unify_wrapper(func):
             initialize,
             wrapped,
             instance,
-            args,
-            kwargs,
         ):
             # initialize = replacer
-            return wrapped(open_ai_resource, replacer, args, kwargs)
+            return wrapped(open_ai_resource, replacer)
 
         print(f"WRAPPER: {str(wrapper)}")
         return wrapper
