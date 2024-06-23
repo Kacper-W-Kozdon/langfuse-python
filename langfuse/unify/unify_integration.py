@@ -49,7 +49,9 @@ _filter_image_data = _filter_image_data
 
 def _unify_wrapper(func):
     def swapper(replacer):
+        print(str(replacer))
         mod = inspect.getmodule(replacer)
+        print(mod)
         replacement = getattr(mod, f"{func.__name__}_alt", None)
 
         def _langfuse_wrapper(openai_definitions, initialize):
@@ -80,7 +82,7 @@ def _replacement_wrap_async(
 class UnifyLangfuse(OpenAILangfuse):
     _langfuse: Optional[Langfuse] = None
 
-    def initialize(self):
+    def initialize_unify(self):
         self._langfuse = LangfuseSingleton().get(
             public_key=unify.langfuse_public_key,
             secret_key=unify.langfuse_secret_key,
@@ -105,13 +107,13 @@ class UnifyLangfuse(OpenAILangfuse):
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap",
-            _replacement_wrap(self.initialize),
+            _replacement_wrap(self.initialize_unify),
         )
 
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap_async",
-            _replacement_wrap_async(self.initialize),
+            _replacement_wrap_async(self.initialize_unify),
         )
 
         setattr(unify, "langfuse_public_key", None)
