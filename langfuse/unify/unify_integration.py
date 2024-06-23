@@ -54,13 +54,11 @@ def _unify_wrapper(func):
         def wrapper(
             initialize,
             wrapped,
-            instance,
             args,
             kwargs,
         ):
-            # initialize = replacer
-            print(f"WRAPPED: {str(wrapped)}")
-            return wrapped(replacer)
+            print("SUCCESS")
+            return None
 
         print(f"WRAPPER: {str(wrapper)}")
         return wrapper
