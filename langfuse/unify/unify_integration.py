@@ -48,6 +48,8 @@ _filter_image_data = _filter_image_data
 
 
 def _unify_wrapper(func):
+    print(func.__name__)
+
     def swapper(replacer):
         print(str(replacer))
 
@@ -63,7 +65,7 @@ def _unify_wrapper(func):
 
         return wrapper
 
-    print(str(swapper))
+    print(f"SWAPPER: {str(swapper)}")
     return swapper
 
 
