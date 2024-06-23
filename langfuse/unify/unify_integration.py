@@ -17,7 +17,6 @@ The integration is fully interoperable with the `observe()` decorator and the lo
 See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
-import inspect
 import functools
 from wrapt import wrap_function_wrapper
 from langfuse.utils.langfuse_singleton import LangfuseSingleton
@@ -50,39 +49,42 @@ _filter_image_data = _filter_image_data
 
 def _unify_wrapper(func):
     def swapper(replacer):
+        print(str(replacer))
+
         @functools.wraps(replacer)
         def wrapper(
-            open_ai_resource: OpenAiDefinition,
-            initialize,
             wrapped,
-            *args,
-            **kwargs,
+            instance,
+            args,
+            kwargs,
         ):
-            print(str(replacer))
-            mod = inspect.getmodule(replacer)
-            print(mod)
-            initialize = getattr(mod, f"{replacer.__name__}", None)
-            print(initialize)
-
-            return func(open_ai_resource, initialize, wrapped, *args, **kwargs)
+            # initialize = replacer
+            return func(replacer, wrapped, args, kwargs)
 
         return wrapper
 
+    print(str(swapper))
     return swapper
 
 
 @_unify_wrapper
 def _replacement_wrap(
-    replacer, open_ai_resource: OpenAiDefinition, initialize, wrapped, *args, **kwargs
+    replacer,
+    open_ai_resource: OpenAiDefinition,
+    initialize,
+    wrapped,
 ):
-    return _wrap(open_ai_resource, initialize, wrapped, *args, **kwargs)
+    return _wrap(open_ai_resource, initialize)
 
 
 @_unify_wrapper
 def _replacement_wrap_async(
-    replacer, open_ai_resource: OpenAiDefinition, initialize, wrapped, *args, **kwargs
+    replacer,
+    open_ai_resource: OpenAiDefinition,
+    initialize,
+    wrapped,
 ):
-    return _wrap_async(open_ai_resource, initialize, wrapped, *args, **kwargs)
+    return _wrap_async(open_ai_resource, initialize)
 
 
 class UnifyLangfuse(OpenAILangfuse):
@@ -110,10 +112,9 @@ class UnifyLangfuse(OpenAILangfuse):
 
     def reregister_tracing(self):
         print("Register")
+
         wrap_function_wrapper(
-            "langfuse.openai",
-            "_wrap",
-            _replacement_wrap(self.initialize_unify),
+            "langfuse.openai", "_wrap", _replacement_wrap(self.initialize_unify)
         )
 
         wrap_function_wrapper(
@@ -121,6 +122,7 @@ class UnifyLangfuse(OpenAILangfuse):
             "_wrap_async",
             _replacement_wrap_async(self.initialize_unify),
         )
+
         self.register_tracing()
         setattr(unify, "langfuse_public_key", None)
         setattr(unify, "langfuse_secret_key", None)
