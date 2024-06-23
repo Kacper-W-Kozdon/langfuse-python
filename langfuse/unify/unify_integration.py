@@ -48,11 +48,10 @@ _filter_image_data = _filter_image_data
 
 def _unify_wrapper(func):
     def replace_init(replacer):
-        def _with_langfuse(open_ai_resource, initialize):
-            initialize = replacer
-
+        def _with_langfuse(open_ai_definition, initialize):
             def wrapper(wrapped, instance, args, kwargs):
-                return func(open_ai_resource, initialize, wrapped, args, kwargs)
+                initialize = replacer
+                return func(open_ai_definition, initialize, wrapped, args, kwargs)
 
             return wrapper
 
@@ -99,6 +98,7 @@ class UnifyLangfuse(OpenAILangfuse):
         setattr(unify, "flush_langfuse", self.flush)
 
     def reregister_tracing(self):
+        print("Register")
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap",
