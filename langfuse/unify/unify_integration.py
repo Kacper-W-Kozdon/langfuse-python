@@ -45,10 +45,10 @@ _filter_image_data = _filter_image_data
 
 
 def _unify_wrapper(func):
-    print(func.__name__)
+    # print(func.__name__)
 
     def swapper(replacer):
-        print(str(replacer))
+        print(f"REPLACER: {str(replacer)}")
 
         @functools.wraps(replacer)
         def wrapper(
