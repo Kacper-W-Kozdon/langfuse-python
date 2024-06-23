@@ -55,6 +55,8 @@ def _unify_wrapper(func):
             initialize,
             wrapped,
             instance,
+            args,
+            kwargs,
         ):
             # initialize = replacer
             print(f"WRAPPED: {str(wrapped)}")
@@ -75,7 +77,6 @@ def _replacement_wrap(
     args,
     kwargs,
 ):
-    print(f"ARGS: {args}")
     return None
 
 
