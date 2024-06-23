@@ -52,7 +52,12 @@ def _unify_wrapper(func):
     def swapper(replacer):
         @functools.wraps(replacer)
         def wrapper(
-            open_ai_resource: OpenAiDefinition, initialize, wrapped, args, kwargs
+            replacer,
+            open_ai_resource: OpenAiDefinition,
+            initialize,
+            wrapped,
+            args,
+            kwargs,
         ):
             print(str(replacer))
             mod = inspect.getmodule(replacer)
