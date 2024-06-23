@@ -17,6 +17,7 @@ The integration is fully interoperable with the `observe()` decorator and the lo
 See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
+import functools
 from wrapt import wrap_function_wrapper
 from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from langfuse.client import Langfuse
@@ -27,9 +28,6 @@ from langfuse.openai import (
     OpenAILangfuse,
     auth_check,
     _filter_image_data,
-    OpenAiDefinition,
-    _wrap,
-    _wrap_async,
 )
 
 
@@ -52,15 +50,15 @@ def _unify_wrapper(func):
     def swapper(replacer):
         print(str(replacer))
 
-        # @functools.wraps(replacer)
+        @functools.wraps(replacer)
         def wrapper(
-            open_ai_resource,
             initialize,
             wrapped,
             instance,
         ):
             # initialize = replacer
-            return wrapped(open_ai_resource, replacer)
+            print(f"WRAPPED: {str(wrapped)}")
+            return wrapped(replacer)
 
         print(f"WRAPPER: {str(wrapper)}")
         return wrapper
@@ -72,25 +70,24 @@ def _unify_wrapper(func):
 @_unify_wrapper
 def _replacement_wrap(
     replacer,
-    open_ai_resource: OpenAiDefinition,
     initialize,
     wrapped,
     args,
     kwargs,
 ):
-    return _wrap(open_ai_resource, initialize)
+    print(f"ARGS: {args}")
+    return None
 
 
 @_unify_wrapper
 def _replacement_wrap_async(
     replacer,
-    open_ai_resource: OpenAiDefinition,
     initialize,
     wrapped,
     args,
     kwargs,
 ):
-    return _wrap_async(open_ai_resource, initialize)
+    return None
 
 
 class UnifyLangfuse(OpenAILangfuse):
