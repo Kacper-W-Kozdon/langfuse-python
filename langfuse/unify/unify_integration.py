@@ -52,12 +52,11 @@ def _unify_wrapper(func):
     def swapper(replacer):
         @functools.wraps(replacer)
         def wrapper(
-            replacer,
             open_ai_resource: OpenAiDefinition,
             initialize,
             wrapped,
-            args,
-            kwargs,
+            *args,
+            **kwargs,
         ):
             print(str(replacer))
             mod = inspect.getmodule(replacer)
@@ -65,7 +64,7 @@ def _unify_wrapper(func):
             initialize = getattr(mod, f"{replacer.__name__}", None)
             print(initialize)
 
-            return func(open_ai_resource, initialize, wrapped, args, kwargs)
+            return func(open_ai_resource, initialize, wrapped, *args, **kwargs)
 
         return wrapper
 
@@ -74,16 +73,16 @@ def _unify_wrapper(func):
 
 @_unify_wrapper
 def _replacement_wrap(
-    replacer, open_ai_resource: OpenAiDefinition, initialize, wrapped, args, kwargs
+    replacer, open_ai_resource: OpenAiDefinition, initialize, wrapped, *args, **kwargs
 ):
-    return _wrap(open_ai_resource, initialize, wrapped, args, kwargs)
+    return _wrap(open_ai_resource, initialize, wrapped, *args, **kwargs)
 
 
 @_unify_wrapper
 def _replacement_wrap_async(
-    replacer, open_ai_resource: OpenAiDefinition, initialize, wrapped, args, kwargs
+    replacer, open_ai_resource: OpenAiDefinition, initialize, wrapped, *args, **kwargs
 ):
-    return _wrap_async(open_ai_resource, initialize, wrapped, args, kwargs)
+    return _wrap_async(open_ai_resource, initialize, wrapped, *args, **kwargs)
 
 
 class UnifyLangfuse(OpenAILangfuse):
@@ -122,7 +121,7 @@ class UnifyLangfuse(OpenAILangfuse):
             "_wrap_async",
             _replacement_wrap_async(self.initialize_unify),
         )
-
+        self.register_tracing()
         setattr(unify, "langfuse_public_key", None)
         setattr(unify, "langfuse_secret_key", None)
         setattr(unify, "langfuse_host", None)
