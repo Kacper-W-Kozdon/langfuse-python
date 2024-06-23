@@ -17,6 +17,7 @@ The integration is fully interoperable with the `observe()` decorator and the lo
 See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
+import inspect
 from wrapt import wrap_function_wrapper
 from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from langfuse.client import Langfuse
@@ -47,18 +48,19 @@ _filter_image_data = _filter_image_data
 
 
 def _unify_wrapper(func):
-    def replace_init(replacer):
-        def _with_langfuse(open_ai_definition, initialize):
-            initialize = replacer
+    def swapper(replacer):
+        mod = inspect.getmodule(replacer)
+        replacement = getattr(mod, f"{func.__name__}_alt", None)
 
+        def _langfuse_wrapper(openai_definitions, initialize):
             def wrapper(wrapped, instance, args, kwargs):
-                return func(open_ai_definition, initialize, wrapped, args, kwargs)
+                return func(openai_definitions, replacement, wrapped, args, kwargs)
 
             return wrapper
 
-        return _with_langfuse
+        return _langfuse_wrapper
 
-    return replace_init
+    return swapper
 
 
 @_unify_wrapper
