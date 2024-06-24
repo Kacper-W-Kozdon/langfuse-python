@@ -1,4 +1,5 @@
-"""If you use the unifyai Python package, you can use the Langfuse drop-in replacement to get full logging by changing only the import.
+"""
+If you use the unifyai Python package, you can use the Langfuse drop-in replacement to get full logging by changing only the import.
 
 ```diff
 - from unify import Unify
@@ -22,6 +23,7 @@ from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from langfuse.client import Langfuse
 from typing import Optional, List, Dict, Generator, AsyncGenerator
 from unify.exceptions import status_error_map
+import langfuse.openai
 from langfuse.openai import (
     openai,
     OpenAILangfuse,
@@ -86,6 +88,7 @@ def _replacement_wrap(
 ):
     # print(f"INIT WRAPPED: {wrapped}")
     print(f"ARG: {str(initialize)}")
+    print(f"_WRAP IN UNIFY: {str(wrapped)}, {wrapped.__name__}")
     return wrapped(*args)
 
 
@@ -151,6 +154,7 @@ print(f"MODIFIER UNIFY: {str(modifier)}")
 # modifier.register_tracing()
 modifierUnify = UnifyLangfuse()
 modifierUnify.reregister_tracing()
+print(f"_WRAP: {str(langfuse.openai._wrap)}")
 modifierUnify.register_tracing()
 
 
