@@ -60,6 +60,7 @@ def _unify_wrapper(func):
             args,
             kwargs,
         ):
+            print(f"RAW ARGS: {args}")
             args = (args[0], replacer)
             print(args)
             print(f"WRAPPED: {wrapped}")
@@ -80,6 +81,7 @@ def _replacement_wrap(
     args,
     kwargs,
 ):
+    print("INIT WRAPPED.")
     return _wrap(*args)
 
 
@@ -132,7 +134,6 @@ class UnifyLangfuse(OpenAILangfuse):
             _replacement_wrap_async(self.initialize_unify, self.initialize),
         )
 
-        self.register_tracing()
         setattr(unify, "langfuse_public_key", None)
         setattr(unify, "langfuse_secret_key", None)
         setattr(unify, "langfuse_host", None)
@@ -144,6 +145,7 @@ class UnifyLangfuse(OpenAILangfuse):
 # OpenAILangfuse.initialize = UnifyLangfuse.initialize
 modifier = UnifyLangfuse()
 modifier.reregister_tracing()
+modifier.register_tracing()
 
 
 class Unify(Unify):
