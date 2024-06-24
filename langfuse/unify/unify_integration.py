@@ -112,7 +112,7 @@ class UnifyLangfuse(OpenAILangfuse):
             enabled=unify.langfuse_enabled,
             sdk_integration="unify",
         )
-        print("UnifyLangfuse.initialize")
+        print(f"UnifyLangfuse.initialize, {unify.langfuse_enabled}")
         return self._langfuse
 
     def unify_tracing(self):
@@ -123,22 +123,21 @@ class UnifyLangfuse(OpenAILangfuse):
         setattr(unify, "langfuse_enabled", True)
         setattr(unify, "flush_langfuse", self.flush)
 
-    def reregister_tracing(self, modifier):
+    def reregister_tracing(self):
         print("Register")
 
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap",
-            _replacement_wrap(self.initialize_unify, modifier.initialize),
+            _replacement_wrap(self.initialize_unify, self.initialize),
         )
 
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap_async",
-            _replacement_wrap_async(self.initialize_unify, modifier.initialize),
+            _replacement_wrap_async(self.initialize_unify, self.initialize),
         )
 
-        modifier.register_tracing()
         setattr(unify, "langfuse_public_key", None)
         setattr(unify, "langfuse_secret_key", None)
         setattr(unify, "langfuse_host", None)
@@ -149,8 +148,10 @@ class UnifyLangfuse(OpenAILangfuse):
 
 # OpenAILangfuse.initialize = UnifyLangfuse.initialize
 print(f"MODIFIER UNIFY: {str(modifier)}")
+# modifier.register_tracing()
 modifierUnify = UnifyLangfuse()
-modifierUnify.reregister_tracing(modifier)
+modifierUnify.reregister_tracing()
+modifierUnify.register_tracing()
 
 
 class Unify(Unify):

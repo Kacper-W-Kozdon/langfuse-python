@@ -13,6 +13,7 @@ unify.langfuse_secret_key = os.getenv("LANGFUSE_SECRET_KEY")
 unify.langfuse_public_key = os.getenv("LANGFUSE_PUBLIC_KEY")
 unify.langfuse_host = os.getenv("LANGFUSE_HOST")
 unify_api_key = os.getenv("UNIFY_API_KEY")
+# os.environ["LANGFUSE_PUBLIC_KEY"] = ""
 print(f"LangFuse pk: {unify.langfuse_public_key}")
 # print(f"UnifyLangfuse auth_check: {auth_check()}")
 client = unify.Unify(
