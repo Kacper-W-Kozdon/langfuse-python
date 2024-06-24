@@ -127,13 +127,13 @@ class UnifyLangfuse(OpenAILangfuse):
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap",
-            _replacement_wrap(self.initialize_unify, self.initialize),
+            _replacement_wrap(self.initialize_unify, OpenAILangfuse.initialize),
         )
 
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap_async",
-            _replacement_wrap_async(self.initialize_unify, self.initialize),
+            _replacement_wrap_async(self.initialize_unify, OpenAILangfuse.initialize),
         )
 
         self.register_tracing()
@@ -148,7 +148,6 @@ class UnifyLangfuse(OpenAILangfuse):
 # OpenAILangfuse.initialize = UnifyLangfuse.initialize
 modifier = UnifyLangfuse()
 modifier.reregister_tracing()
-print(globals())
 
 
 class Unify(Unify):
