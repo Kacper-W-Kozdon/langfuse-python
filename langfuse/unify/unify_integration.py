@@ -17,24 +17,23 @@ The integration is fully interoperable with the `observe()` decorator and the lo
 See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
-import sys
-import importlib.util
 from wrapt import wrap_function_wrapper
 from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from langfuse.client import Langfuse
 from typing import Optional, List, Dict, Generator, AsyncGenerator
 from unify.exceptions import status_error_map
 from langfuse.openai import (
+    openai,
     OpenAILangfuse,
     auth_check,
     _filter_image_data,
 )
 
-if importlib.util.find_spec("openai") is not None:
-    print("CHECK IMPORT")
-    del sys.modules["openai"]
-    openai = __import__("openai")
-    sys.modules["openai"] = openai
+# if importlib.util.find_spec("openai") is not None:
+#     print("CHECK IMPORT")
+#     del sys.modules["openai"]
+#     openai = __import__("openai")
+#     sys.modules["openai"] = openai
 try:
     import unify
 except ImportError:
@@ -66,6 +65,7 @@ def _unify_wrapper(func):
             args = (args[0], replacer)
             # print(args)
             # print(f"WRAPPED: {wrapped}")
+
             return func(replacer, initialize, wrapped, args, kwargs)
 
         # print(f"WRAPPER: {str(wrapper)}")
@@ -148,6 +148,7 @@ class UnifyLangfuse(OpenAILangfuse):
 # OpenAILangfuse.initialize = UnifyLangfuse.initialize
 modifier = UnifyLangfuse()
 modifier.reregister_tracing()
+print(globals())
 
 
 class Unify(Unify):
