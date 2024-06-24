@@ -47,27 +47,26 @@ def _unify_wrapper(func):
     # print(func.__name__)
 
     def swapper(replacer, initialize):
-        print(f"REPLACER: {str(replacer)}")
-        print(f"INITIALIZE: {str(initialize)}")
+        # print(f"REPLACER: {str(replacer)}")
+        # print(f"INITIALIZE: {str(initialize)}")
 
         # @functools.wraps(replacer)
         def wrapper(
-            initialize,
             wrapped,
             instance,
             args,
             kwargs,
         ):
-            print(f"RAW ARGS: {args}")
+            # print(f"RAW ARGS: {args}")
             args = (args[0], replacer)
-            print(args)
-            print(f"WRAPPED: {wrapped}")
+            # print(args)
+            # print(f"WRAPPED: {wrapped}")
             return func(replacer, initialize, wrapped, args, kwargs)
 
-        print(f"WRAPPER: {str(wrapper)}")
+        # print(f"WRAPPER: {str(wrapper)}")
         return wrapper
 
-    print(f"SWAPPER: {str(swapper)}")
+    # print(f"SWAPPER: {str(swapper)}")
     return swapper
 
 
@@ -76,7 +75,6 @@ def _replacement_wrap(
     replacer,
     initialize,
     wrapped,
-    instance,
     args,
     kwargs,
 ):
@@ -133,7 +131,7 @@ class UnifyLangfuse(OpenAILangfuse):
             _replacement_wrap_async(self.initialize_unify, self.initialize),
         )
 
-        self.register_tracing()
+        # self.register_tracing()
         setattr(unify, "langfuse_public_key", None)
         setattr(unify, "langfuse_secret_key", None)
         setattr(unify, "langfuse_host", None)
@@ -142,7 +140,7 @@ class UnifyLangfuse(OpenAILangfuse):
         setattr(unify, "flush_langfuse", self.flush)
 
 
-# OpenAILangfuse.initialize = UnifyLangfuse.initialize
+OpenAILangfuse.initialize = UnifyLangfuse.initialize
 modifier = UnifyLangfuse()
 modifier.reregister_tracing()
 
