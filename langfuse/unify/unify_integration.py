@@ -28,6 +28,8 @@ from langfuse.openai import (
     OpenAILangfuse,
     auth_check,
     _filter_image_data,
+    _wrap,
+    _wrap_async,
 )
 
 
@@ -47,8 +49,9 @@ _filter_image_data = _filter_image_data
 def _unify_wrapper(func):
     # print(func.__name__)
 
-    def swapper(replacer):
+    def swapper(replacer, initialize):
         print(f"REPLACER: {str(replacer)}")
+        print(f"INITIALIZE: {str(initialize)}")
 
         @functools.wraps(replacer)
         def wrapper(
@@ -57,8 +60,10 @@ def _unify_wrapper(func):
             args,
             kwargs,
         ):
-            print("SUCCESS")
-            return None
+            args = (args[0], replacer)
+            print(args)
+            print(f"WRAPPED: {wrapped}")
+            return func(replacer, initialize, wrapped, args, kwargs)
 
         print(f"WRAPPER: {str(wrapper)}")
         return wrapper
@@ -75,7 +80,7 @@ def _replacement_wrap(
     args,
     kwargs,
 ):
-    return None
+    return _wrap(*args)
 
 
 @_unify_wrapper
@@ -86,7 +91,7 @@ def _replacement_wrap_async(
     args,
     kwargs,
 ):
-    return None
+    return _wrap_async(*args)
 
 
 class UnifyLangfuse(OpenAILangfuse):
@@ -116,13 +121,15 @@ class UnifyLangfuse(OpenAILangfuse):
         print("Register")
 
         wrap_function_wrapper(
-            "langfuse.openai", "_wrap", _replacement_wrap(self.initialize_unify)
+            "langfuse.openai",
+            "_wrap",
+            _replacement_wrap(self.initialize_unify, self.initialize),
         )
 
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap_async",
-            _replacement_wrap_async(self.initialize_unify),
+            _replacement_wrap_async(self.initialize_unify, self.initialize),
         )
 
         self.register_tracing()
