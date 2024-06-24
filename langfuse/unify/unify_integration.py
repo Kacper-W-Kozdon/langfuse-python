@@ -138,7 +138,7 @@ class UnifyLangfuse(OpenAILangfuse):
             _replacement_wrap_async(self.initialize_unify, modifier.initialize),
         )
 
-        self.register_tracing()
+        modifier.register_tracing()
         setattr(unify, "langfuse_public_key", None)
         setattr(unify, "langfuse_secret_key", None)
         setattr(unify, "langfuse_host", None)
