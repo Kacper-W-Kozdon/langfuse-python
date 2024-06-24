@@ -27,6 +27,7 @@ from langfuse.openai import (
     OpenAILangfuse,
     auth_check,
     _filter_image_data,
+    modifier,
 )
 
 # if importlib.util.find_spec("openai") is not None:
@@ -52,7 +53,7 @@ def _unify_wrapper(func):
 
     def swapper(replacer, initialize):
         # print(f"REPLACER: {str(replacer)}")
-        # print(f"INITIALIZE: {str(initialize)}")
+        print(f"INI: {str(initialize)}")
 
         # @functools.wraps(replacer)
         def wrapper(
@@ -84,6 +85,7 @@ def _replacement_wrap(
     kwargs,
 ):
     # print(f"INIT WRAPPED: {wrapped}")
+    print(f"ARG: {str(initialize)}")
     return wrapped(*args)
 
 
@@ -121,19 +123,19 @@ class UnifyLangfuse(OpenAILangfuse):
         setattr(unify, "langfuse_enabled", True)
         setattr(unify, "flush_langfuse", self.flush)
 
-    def reregister_tracing(self):
+    def reregister_tracing(self, modifier):
         print("Register")
 
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap",
-            _replacement_wrap(self.initialize_unify, OpenAILangfuse.initialize),
+            _replacement_wrap(self.initialize_unify, modifier.initialize),
         )
 
         wrap_function_wrapper(
             "langfuse.openai",
             "_wrap_async",
-            _replacement_wrap_async(self.initialize_unify, OpenAILangfuse.initialize),
+            _replacement_wrap_async(self.initialize_unify, modifier.initialize),
         )
 
         self.register_tracing()
@@ -146,8 +148,8 @@ class UnifyLangfuse(OpenAILangfuse):
 
 
 # OpenAILangfuse.initialize = UnifyLangfuse.initialize
-modifier = UnifyLangfuse()
-modifier.reregister_tracing()
+modifierUnify = UnifyLangfuse()
+modifierUnify.reregister_tracing(modifier)
 
 
 class Unify(Unify):
