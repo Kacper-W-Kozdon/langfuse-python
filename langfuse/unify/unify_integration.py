@@ -20,15 +20,20 @@ See docs for more details: https://langfuse.com/docs/integrations/openai
 
 import sys
 import importlib.util
-from wrapt import wrap_function_wrapper
+from wrapt import wrap_function_wrapper, resolve_path
 from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from langfuse.client import Langfuse
 from typing import Optional, List, Dict, Generator, AsyncGenerator
 from unify.exceptions import status_error_map
+from types import MethodType
 from langfuse.openai import (
     OpenAILangfuse,
     auth_check,
     _filter_image_data,
+    modifier,
+    OPENAI_METHODS_V0,
+    OPENAI_METHODS_V1,
+    _is_openai_v1,
 )
 
 if importlib.util.find_spec("openai") is not None:
@@ -47,6 +52,28 @@ from unify import Unify, AsyncUnify, ChatBot
 
 auth_check = auth_check
 _filter_image_data = _filter_image_data
+
+
+def blank(self):
+    pass
+
+
+def blank_register(self):
+    resources = OPENAI_METHODS_V1 if _is_openai_v1() else OPENAI_METHODS_V0
+
+    for resource in resources:
+        parent, attribute, wrapper = resolve_path(
+            resource.module, f"{resource.object}.{resource.method}"
+        )
+
+        # revert to original function
+        original = wrapper.__wrapped__
+        setattr(parent, attribute, original)
+
+
+modifier.initialize = MethodType(blank, modifier)
+modifier.register_tracing = MethodType(blank_register, modifier)
+modifier.register_tracing()
 
 
 def _unify_wrapper(func):
@@ -140,6 +167,7 @@ class UnifyLangfuse(OpenAILangfuse):
             _replacement_wrap_async(self.initialize_unify, self.initialize),
         )
 
+        self.register_tracing()
         setattr(unify, "langfuse_public_key", None)
         setattr(unify, "langfuse_secret_key", None)
         setattr(unify, "langfuse_host", None)
@@ -151,8 +179,8 @@ class UnifyLangfuse(OpenAILangfuse):
 # OpenAILangfuse.initialize = UnifyLangfuse.initialize
 # modifier.register_tracing()
 modifierUnify = UnifyLangfuse()
+
 modifierUnify.reregister_tracing()
-modifierUnify.register_tracing()
 
 
 class Unify(Unify):
