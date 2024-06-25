@@ -18,7 +18,6 @@ The integration is fully interoperable with the `observe()` decorator and the lo
 See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
-import inspect
 import sys
 import importlib.util
 from wrapt import wrap_function_wrapper, resolve_path
@@ -26,6 +25,7 @@ from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from langfuse.client import Langfuse
 from typing import Optional, List, Dict, Generator, AsyncGenerator
 from unify.exceptions import status_error_map
+import langfuse.openai
 from langfuse.openai import (
     OpenAILangfuse,
     auth_check,
@@ -154,10 +154,38 @@ class UnifyLangfuse(OpenAILangfuse):
     def register_tracing_alt(self):
         resources = OPENAI_METHODS_V1 if _is_openai_v1() else OPENAI_METHODS_V0
 
+        wrap_function_wrapper(
+            "langfuse.openai",
+            "_wrap",
+            _replacement_wrap(self.initialize_unify, self.initialize),
+        )
+
+        wrap_function_wrapper(
+            "langfuse.openai",
+            "_wrap_async",
+            _replacement_wrap_async(self.initialize_unify, self.initialize),
+        )
+
         for resource in resources:
-            func = getattr(resource.module, f"{resource.object}.{resource.method}")
-            params = list(inspect.signature(func).parameters.keys())
-            print(params)
+            parent, attribute, wrapper = resolve_path(
+                resource.module, f"{resource.object}.{resource.method}"
+            )
+            original = wrapper.__wrapped__
+            setattr(parent, attribute, original)
+            wrap_function_wrapper(
+                resource.module,
+                f"{resource.object}.{resource.method}",
+                langfuse.openai._wrap(resource, self.initialize)
+                if resource.sync
+                else langfuse.openai._wrap_async(resource, self.initialize),
+            )
+
+        setattr(unify, "langfuse_public_key", None)
+        setattr(unify, "langfuse_secret_key", None)
+        setattr(unify, "langfuse_host", None)
+        setattr(unify, "langfuse_debug", None)
+        setattr(unify, "langfuse_enabled", True)
+        setattr(unify, "flush_langfuse", self.flush)
 
     def reregister_tracing(self):
         print("Register")
@@ -198,7 +226,7 @@ class UnifyLangfuse(OpenAILangfuse):
 # modifier.register_tracing()
 modifierUnify = UnifyLangfuse()
 modifierUnify.register_tracing_alt()
-modifierUnify.reregister_tracing()
+# modifierUnify.reregister_tracing()
 
 
 class Unify(Unify):
