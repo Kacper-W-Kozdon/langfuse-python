@@ -18,6 +18,7 @@ The integration is fully interoperable with the `observe()` decorator and the lo
 See docs for more details: https://langfuse.com/docs/integrations/openai
 """
 
+import inspect
 import sys
 import importlib.util
 from wrapt import wrap_function_wrapper, resolve_path
@@ -150,6 +151,14 @@ class UnifyLangfuse(OpenAILangfuse):
         setattr(unify, "langfuse_enabled", True)
         setattr(unify, "flush_langfuse", self.flush)
 
+    def register_tracing_alt(self):
+        resources = OPENAI_METHODS_V1 if _is_openai_v1() else OPENAI_METHODS_V0
+
+        for resource in resources:
+            func = getattr(resource.module, f"{resource.object}.{resource.method}")
+            params = list(inspect.signature(func).parameters.keys())
+            print(params)
+
     def reregister_tracing(self):
         print("Register")
 
@@ -188,7 +197,7 @@ class UnifyLangfuse(OpenAILangfuse):
 # OpenAILangfuse.initialize = UnifyLangfuse.initialize
 # modifier.register_tracing()
 modifierUnify = UnifyLangfuse()
-
+modifierUnify.register_tracing_alt()
 modifierUnify.reregister_tracing()
 
 
