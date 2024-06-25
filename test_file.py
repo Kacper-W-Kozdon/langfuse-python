@@ -60,7 +60,7 @@ def main(country: str, user_id: str, **kwargs) -> str:
     #     release="v0.0.21",
     # )
 
-    return poem
+    return capital, poem
 
 
 # create random trace_id, could also use existing id from your application, e.g. conversation id
