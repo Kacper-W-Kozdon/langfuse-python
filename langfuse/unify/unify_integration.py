@@ -23,7 +23,6 @@ from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from langfuse.client import Langfuse
 from typing import Optional, List, Dict, Generator, AsyncGenerator
 from unify.exceptions import status_error_map
-import langfuse.openai
 from langfuse.openai import (
     openai,
     OpenAILangfuse,
@@ -87,8 +86,8 @@ def _replacement_wrap(
     kwargs,
 ):
     # print(f"INIT WRAPPED: {wrapped}")
-    print(f"ARG: {str(initialize)}")
-    print(f"_WRAP IN UNIFY: {str(wrapped)}, {wrapped.__name__}")
+    print(f"ARG: {str(args[0].method)}")
+    print("_WRAP IN UNIFY")
     return wrapped(*args)
 
 
@@ -154,7 +153,6 @@ print(f"MODIFIER UNIFY: {str(modifier)}")
 # modifier.register_tracing()
 modifierUnify = UnifyLangfuse()
 modifierUnify.reregister_tracing()
-print(f"_WRAP: {str(langfuse.openai._wrap)}")
 modifierUnify.register_tracing()
 
 
