@@ -25,12 +25,10 @@ from langfuse.utils.langfuse_singleton import LangfuseSingleton
 from langfuse.client import Langfuse
 from typing import Optional, List, Dict, Generator, AsyncGenerator
 from unify.exceptions import status_error_map
-from types import MethodType
 from langfuse.openai import (
     OpenAILangfuse,
     auth_check,
     _filter_image_data,
-    modifier,
     OPENAI_METHODS_V0,
     OPENAI_METHODS_V1,
     _is_openai_v1,
@@ -71,9 +69,9 @@ def blank_register(self):
         setattr(parent, attribute, original)
 
 
-modifier.initialize = MethodType(blank, modifier)
-modifier.register_tracing = MethodType(blank_register, modifier)
-modifier.register_tracing()
+# modifier.initialize = MethodType(blank, modifier)
+# modifier.register_tracing = MethodType(blank_register, modifier)
+# modifier.register_tracing()
 
 
 def _unify_wrapper(func):
@@ -154,6 +152,17 @@ class UnifyLangfuse(OpenAILangfuse):
 
     def reregister_tracing(self):
         print("Register")
+
+        resources = OPENAI_METHODS_V1 if _is_openai_v1() else OPENAI_METHODS_V0
+
+        for resource in resources:
+            parent, attribute, wrapper = resolve_path(
+                resource.module, f"{resource.object}.{resource.method}"
+            )
+
+            # revert to original function
+            original = wrapper.__wrapped__
+            setattr(parent, attribute, original)
 
         wrap_function_wrapper(
             "langfuse.openai",
